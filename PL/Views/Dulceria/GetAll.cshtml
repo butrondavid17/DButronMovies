@@ -1,0 +1,52 @@
+﻿@model ML.Producto
+@{
+    ViewData["Title"] = "GetAll";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center">Dulcería</h1>
+
+<div class="row">
+    @foreach (ML.Producto product in Model.Productos)
+    {
+        <div class="col-lg-4 col-md-12 mb-4">
+            <div class="card">
+                <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
+                 data-mdb-ripple-color="light">
+                    <input type="text" name="IdProducto" value="@product.IdProducto" hidden />
+                    @if (product.Imagen == null)
+                    {
+                        <img class="w-100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png" />
+                    }
+                    else
+                    {
+                        <img class="w-100" src="data:image/*;base64,@Convert.ToBase64String(product.Imagen)" />
+                    }
+                    <a href=" @Url.Action("Form", "Dulceria", new { IdProducto = product.IdProducto })">
+                        <div class="mask">
+                            <div class="d-flex justify-content-start align-items-end h-100">
+                                <h5><span class="badge bg-primary ms-2">@product.Categoria.Nombre</span></h5>
+                            </div>
+                        </div>
+                        <div class="hover-overlay">
+                            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                        </div>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <a href="#" class="text-reset text-decoration-none">
+                        <h5 class="card-title mb-3">@product.Nombre</h5>
+                    </a>
+                    <a href="#" class="text-reset text-decoration-none">
+                        <p>$@product.Precio</p>
+                    </a>
+                    <a href="#" class="btn btn-outline-success">
+                        <i class="bi bi-bag-fill"></i> Comprar
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+

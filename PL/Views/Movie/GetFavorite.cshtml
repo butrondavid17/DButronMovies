@@ -1,0 +1,45 @@
+﻿@model ML.Root
+@{
+    ViewData["Title"] = "GetFavorite";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center">Favorite Movies</h1>
+@if (Model.Results.Count == 0)
+{
+    <div class="alert alert-primary" role="alert">
+        Aún no hay películas favoritas
+    </div>
+}
+else
+{
+
+    <div class="container">
+        <div class="row">
+            @foreach (ML.Result movie in Model.Results)
+            {
+                <div class="col-md-4">
+                    <div class="card movie_card zoom-effect">
+                        <img src="@Url.Content($"http://image.tmdb.org/t/p/w500/{movie.PosterPath}")" class="card-img-top" alt="imgPoster">
+                        <div class="card-body">
+                            <h5 class="card-title">@movie.Title</h5>
+                            <p class="card-text ellipsis">@movie.Overview</p>
+                            <span class="movie_info"><i class="bi bi-calendar"></i> @movie.ReleaseDate.ToString("yyyy")</span>
+                            <span class="movie_info float-right"><i class="bi bi-star-fill"></i> @movie.VoteAverage / 10</span>
+                            @using (Html.BeginForm("AddMovie", "Movie", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <input type="text" name="IdMovie" value="@movie.Id" hidden />
+                                <span class="float-end">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Quitar de favorito" value="0" name="btnFav">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+}
