@@ -3,9 +3,20 @@
     ViewData["Title"] = "GetAll";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h1 class="text-center">Dulcería</h1>
-
+<div class="row">
+    <h1 class="text-center">Dulcería</h1>
+    <div class="dropdown m-md-3">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Categoría
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="@Url.Action("GetAll", "Dulceria", new { IdCategoria = 1 })">Alimentos</a></li>
+            <li><a class="dropdown-item" href="@Url.Action("GetAll", "Dulceria", new { IdCategoria = 2 })">Bebidas</a></li>
+            <li><a class="dropdown-item" href="@Url.Action("GetAll", "Dulceria", new { IdCategoria = 3 })">Snacks</a></li>
+            <li><a class="dropdown-item" href="@Url.Action("GetAll", "Dulceria")">Todos</a></li>
+        </ul>
+    </div>
+</div>
 <div class="row">
     @foreach (ML.Producto product in Model.Productos)
     {
@@ -22,7 +33,8 @@
                     {
                         <img class="w-100" src="data:image/*;base64,@Convert.ToBase64String(product.Imagen)" />
                     }
-                    <a href=" @Url.Action("Form", "Dulceria", new { IdProducto = product.IdProducto })">
+                    <!--Url.Action("Form", "Dulceria", new { IdProducto = product.IdProducto })-->
+                    <a href="#">
                         <div class="mask">
                             <div class="d-flex justify-content-start align-items-end h-100">
                                 <h5><span class="badge bg-primary ms-2">@product.Categoria.Nombre</span></h5>

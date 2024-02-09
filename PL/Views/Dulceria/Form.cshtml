@@ -8,6 +8,7 @@
 
 @using (Html.BeginForm("Form", "Dulceria", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
+    @Html.HiddenFor(model => model.IdProducto)
     <div class="col-md-4 mb-md-3">
         @Html.LabelFor(model => model.Imagen)
         <div class="input-group">

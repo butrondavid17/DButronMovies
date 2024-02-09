@@ -5,10 +5,48 @@ namespace PL.Controllers
     public class DulceriaController : Controller
     {
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll(int? IdCategoria)
+        {
+            if (IdCategoria != null)
+            {
+                ML.Producto producto = new ML.Producto();
+                Dictionary<string, object> objeto = BL.Producto.GetByIdCategoria(IdCategoria.Value);
+                bool result = (bool)objeto["Resultado"];
+                if (result)
+                {
+                    producto = (ML.Producto)objeto["Producto"];
+                    return View(producto);
+                }
+                else
+                {
+                    string excepcion = (string)objeto["Excepcion"];
+                    ViewBag.Mensaje = "Ocurrio un error " + excepcion;
+                    return PartialView("Modal");
+                }
+            }
+            else
+            {
+                ML.Producto producto = new ML.Producto();
+                Dictionary<string, object> objeto = BL.Producto.GetAll();
+                bool result = (bool)objeto["Resultado"];
+                if (result)
+                {
+                    producto = (ML.Producto)objeto["Producto"];
+                    return View(producto);
+                }
+                else
+                {
+                    string excepcion = (string)objeto["Excepcion"];
+                    ViewBag.Mensaje = "Ocurrio un error " + excepcion;
+                    return PartialView("Modal");
+                }
+            }            
+        }
+        [HttpGet]
+        public IActionResult Form(int IdProducto)
         {
             ML.Producto producto = new ML.Producto();
-            Dictionary<string, object> objeto = BL.Producto.GetAll();
+            Dictionary<string, object> objeto = BL.Producto.GetById(IdProducto);
             bool result = (bool)objeto["Resultado"];
             if (result)
             {
@@ -18,17 +56,9 @@ namespace PL.Controllers
             else
             {
                 string excepcion = (string)objeto["Excepcion"];
-                ViewBag.Mensaje = "Ocurrio un error " + excepcion;
+                ViewBag.Mensaje = "Ocurrio un error al recuperar la información" + excepcion;
                 return PartialView("Modal");
             }
-        }
-        [HttpGet]
-        public IActionResult Form(int IdProducto)
-        {
-            Dictionary<string, object> objeto = BL.Producto.GetById(IdProducto);
-            bool result = (bool)objeto["Resultado"];
-
-            return View();
         }
         [HttpPost]
         public IActionResult Form(ML.Producto producto, IFormFile inImagen)
@@ -46,7 +76,7 @@ namespace PL.Controllers
             }
             else
             {
-                string exepcion = (string)objeto["Exepcion"];
+                string exepcion = (string)objeto["Excepcion"];
                 ViewBag.Mensaje = "La imagen no se pudo actualizar " + exepcion;
                 return PartialView("Modal");
             }
@@ -61,5 +91,6 @@ namespace PL.Controllers
             }
             return data;
         }
+
     }
 }
