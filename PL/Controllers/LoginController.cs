@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Text;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace PL.Controllers
 {
@@ -16,19 +19,35 @@ namespace PL.Controllers
         {
             Dictionary<string, object> objeto = BL.Usuario.GetUsuarioByEmail(Email);
             bool resultado = (bool)objeto["Resultado"];
-            if (resultado) 
+            if (resultado)
             {
-                ML.Usuario usuario = (ML.Usuario)objeto["Usuario"];                
+                ML.Usuario usuario = (ML.Usuario)objeto["Usuario"];
                 if (usuario.Email != "")
                 {
                     var password = ConvertToBytes(pswd);
                     var validPassword = ByteArraysEqual(password, usuario.Password);
-
                     if (validPassword)
                     {
                         return RedirectToAction("Index", "Home");
                     }
+                    else
+                    {
+                        ViewBag.Mensaje = "La contraseña ingresada es incorrecta";
+                        ViewBag.Password = false;
+                        
+                    }
                 }
+                else
+                {
+                    ViewBag.Mensaje = "El correo es incorrecto";
+                    ViewBag.Email = false;
+                    
+                }
+            }
+            else
+            {
+                ViewBag.Mensaje = "El correo no se encontro";
+                ViewBag.Email = false;
             }
             return View();
         }
@@ -50,8 +69,14 @@ namespace PL.Controllers
         }
         private byte[] ConvertToBytes(string pswd)
         {
-            byte[] data = Encoding.ASCII.GetBytes(pswd);
-            return data;
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                byte[] hashBytes = sha256.ComputeHash(encoding.GetBytes(pswd));
+                byte[] truncatedHash = new byte[20];
+                Array.Copy(hashBytes, truncatedHash, 20);
+                return truncatedHash;
+            }
         }
         private bool ByteArraysEqual(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
         {

@@ -52,7 +52,7 @@
                     <a href="#" class="text-reset text-decoration-none">
                         <p>$@product.Precio</p>
                     </a>
-                    <a href="#" class="btn btn-outline-success">
+                    <a href="@Url.Action("AddProducto", "Dulceria", new {IdProducto = product.IdProducto})" class="btn btn-outline-success">
                         <i class="bi bi-bag-fill"></i> Comprar
                     </a>
                 </div>

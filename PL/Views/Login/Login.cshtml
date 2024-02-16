@@ -32,7 +32,7 @@
             overflow: hidden;
             background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") no-repeat center/ cover;
             border-radius: 10px;
-            box-shadow: 5px 20px 50px #000;           
+            box-shadow: 5px 20px 50px #000;
         }
 
         #chk {
@@ -119,6 +119,19 @@
                     color: #573b8a;
                 }
 
+        .error-msg {
+            text-decoration: none;
+            color: #d63031;
+            background-color: #fab1a0;
+            padding: 10px;
+            border-radius: 10px;
+            margin-left: 1.5rem;
+            margin-right: 1.5rem;
+            justify-content: center;
+            display: flex;
+            font-size: small;
+        }
+
         #chk:checked ~ .login {
             transform: translateY(-500px);
         }
@@ -137,24 +150,23 @@
             flex-direction: row;
             margin-top: 80px;
         }
-
     </style>
     <div class="main">
-        <input type="checkbox" id="chk" aria-hidden="true">
+        <input type="checkbox" id="chk" aria-hidden="true" checked>
         <div class="signup">
             @using (Html.BeginForm("SignUp", "Login", FormMethod.Post, new { @enctype = "multipart/form-data" }))
             {
                 <label for="chk" aria-hidden="true">Registrar</label>
                 <div class="row">
                     <div>
-                        @Html.TextBoxFor(model => model.Nombre, new { @placeholder = "Nombre(s)"})
-                        @Html.TextBoxFor(model => model.ApellidoPaterno, new { @placeholder = "Apellido Paterno"})
-                        @Html.TextBoxFor(model => model.ApellidoMaterno, new { @placeholder = "Apellido Materno"})
+                        @Html.TextBoxFor(model => model.Nombre, new { @placeholder = "Nombre(s)", @autocomplete = "off"})
+                        @Html.TextBoxFor(model => model.ApellidoPaterno, new { @placeholder = "Apellido Paterno", @autocomplete="off"})
+                        @Html.TextBoxFor(model => model.ApellidoMaterno, new { @placeholder = "Apellido Materno",  @autocomplete="off"})
                     </div>
                     <div>
-                        @Html.TextBoxFor(model => model.Username, new { @placeholder = "Nombre de Usuario"})
-                        @Html.TextBoxFor(model => model.Email, new { @placeholder = "Correo Electronico"})
-                        <input type="password" name="password" placeholder="Contraseña" required="">
+                        @Html.TextBoxFor(model => model.Username, new { @placeholder = "Nombre de Usuario", @autocomplete="off"})
+                        @Html.TextBoxFor(model => model.Email, new { @placeholder = "Correo Electronico", @autocomplete="off"})
+                        <input type="password" name="password" placeholder="Contraseña" required="" autocomplete="off">
                     </div>
                 </div>
                 <button type="submit">Enviar</button>
@@ -164,8 +176,16 @@
             @using (Html.BeginForm("Login", "Login", FormMethod.Post, new { @enctype = "multipart/form-data" }))
             {
                 <label for="chk" aria-hidden="true">Iniciar Sesión</label>
-                @Html.TextBoxFor(model => model.Email, new { @placeholder = "Email"})
-                <input type="password" name="pswd" placeholder="Contraseña" required="">
+                @Html.TextBoxFor(model => model.Email, new { @placeholder = "Email", @autocomplete="off", @type="email", @required=""})
+                <input type="password" name="pswd" placeholder="Contraseña" required autocomplete="off">
+                if (ViewBag.Email == false)
+                {
+                    <p class="error-msg">@ViewBag.Mensaje</p>
+                }
+                if (ViewBag.Password == false)
+                {
+                    <p class="error-msg">@ViewBag.Mensaje</p>
+                }
                 <a href="#">Olvide mi contraseña</a>
                 <button type="submit">Enviar</button>
             }
