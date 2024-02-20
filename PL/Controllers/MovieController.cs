@@ -8,7 +8,7 @@ namespace PL.Controllers
         private readonly IConfiguration _configuration;
         public MovieController(IConfiguration configuration)
         {
-            _configuration= configuration;
+            _configuration = configuration;
         }
         [HttpGet]
         public ActionResult GetAll(ML.Root root)
@@ -31,17 +31,18 @@ namespace PL.Controllers
                 }
                 else
                 {
-                    ViewBag.Mensaje = "Ocurrio un error al consultar la información";                    
+                    ViewBag.Mensaje = "Ocurrio un error al consultar la información";
                 }
             }
             return View(root);
         }
         [HttpPost]
-        public ActionResult AddMovie(int IdMovie, int btnFav) {
+        public ActionResult AddMovie(int IdMovie, int btnFav)
+        {
             ML.FavoriteResult favResult = new ML.FavoriteResult();
             bool favorite = false;
             using (var client = new HttpClient())
-            {                
+            {
                 client.BaseAddress = new Uri(_configuration["WebApi"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_configuration["AccessToken"]}");
@@ -54,9 +55,9 @@ namespace PL.Controllers
                     favorite = false;
                 }
                 ML.AddFavorite addFavorite = new ML.AddFavorite();
-                addFavorite.MediaType = "movie"; 
+                addFavorite.MediaType = "movie";
                 addFavorite.MediaId = IdMovie;
-                addFavorite.Favorite= favorite;
+                addFavorite.Favorite = favorite;
                 //var anonymousObject = new { mediaType = "movie", mediaId = IdMovie, favorite = favorite };
                 var postTask = client.PostAsJsonAsync($"account/20961193/favorite?{_configuration["SessionId"]}", addFavorite);
                 postTask.Wait();
@@ -78,7 +79,7 @@ namespace PL.Controllers
                     {
                         ViewBag.Mensaje = "Se elimino de favoritos";
                     }
-                    
+
                 }
                 else
                 {
