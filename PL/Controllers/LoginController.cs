@@ -111,32 +111,42 @@ namespace PL.Controllers
         [HttpPost]
         public ActionResult NewPassword(string Password)
         {
-            var session = Newtonsoft.Json.JsonConvert.DeserializeObject<ML.Usuario>(HttpContext.Session.GetString("Email"));
-            Dictionary<string, object> objeto = BL.Usuario.GetUsuarioByEmail(session.Email);
-            bool resultado = (bool)objeto["Resultado"];
-            var password = ConvertToBytes(Password);
-            if (resultado)
+            if (HttpContext.Session.GetString("Email") != null)
             {
-                Dictionary<string, object> action = BL.Usuario.UpdatePassword(session.Email, password);
-                bool resultadoPassword = (bool)action["Resultado"];
-                if (resultadoPassword)
+                ViewBag.Correct = true;
+                var session = Newtonsoft.Json.JsonConvert.DeserializeObject<ML.Usuario>(HttpContext.Session.GetString("Email"));
+                Dictionary<string, object> objeto = BL.Usuario.GetUsuarioByEmail(session.Email);
+                bool resultado = (bool)objeto["Resultado"];
+                var password = ConvertToBytes(Password);
+                if (resultado)
                 {
-                    ViewBag.Mensaje = "La contraseña ha sido actualizada correctamente";
-                    return PartialView("Modal");
+                    Dictionary<string, object> action = BL.Usuario.UpdatePassword(session.Email, password);
+                    bool resultadoPassword = (bool)action["Resultado"];
+                    if (resultadoPassword)
+                    {
+                        ViewBag.Mensaje = "La contraseña ha sido actualizada correctamente";
+                        return PartialView("Modal");
+                    }
+                    else
+                    {
+                        string excepcion = (string)action["Excepcion"];
+                        ViewBag.Mensaje = "Ocurrio un error al intentar actualizar la contraseña " + excepcion;
+                        return PartialView("Modal");
+                    }
                 }
                 else
                 {
-                    string excepcion = (string)action["Excepcion"];
-                    ViewBag.Mensaje = "Ocurrio un error al intentar actualizar la contraseña " + excepcion;
+                    string excepcion = (string)objeto["Excepcion"];
+                    ViewBag.Mensaje = "Ocurrio un error " + excepcion;
                     return PartialView("Modal");
                 }
             }
-            else
             {
-                string excepcion = (string)objeto["Excepcion"];
-                ViewBag.Mensaje = "Ocurrio un error " + excepcion;
-                return PartialView("Modal");
+                ViewBag.Correct = false;
+                ViewBag.Mensaje = "El link de recuperación ha caducado";
+                return View();
             }
+            
         }
         public ActionResult EnviarEmail(string email)
         {
