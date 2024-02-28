@@ -8,6 +8,7 @@ namespace ML
 {
     public class Carrito
     {
+        public ML.InfoPdf InfoPdf { get; set; }
         public ML.Producto Producto { get; set; }
         public int Cantidad { get; set; }
         public decimal Total { get; set; }  

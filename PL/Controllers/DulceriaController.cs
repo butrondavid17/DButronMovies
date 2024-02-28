@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using iText.IO.Image;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PL.Controllers
 {
@@ -111,7 +116,7 @@ namespace PL.Controllers
                     else
                     {
                         productExist = false;
-                        producto.Cantidad+=1;
+                        producto.Cantidad += 1;
                     }
                 }
                 if (productExist)
@@ -160,6 +165,55 @@ namespace PL.Controllers
             }
             return carrito;
         }
+        [HttpPost]
+        public ActionResult ModalForm(ML.Carrito carrito)
+        {
+            return View();
+        }
+        [HttpGet]
+        public ActionResult GenerarPDF()
+        {
+            ML.Carrito carrito = new ML.Carrito();
+            carrito.listaProductos = new List<object>();
+            GetCarrito(carrito);
+            string rutaPdf = Path.GetTempFileName() + ".pdf";
+            using (PdfDocument pdfDocument = new PdfDocument(new PdfWriter(rutaPdf)))
+            {
+                using (Document document = new Document(pdfDocument))
+                {
+                    document.Add(new Paragraph("Resumen de compra"));
+                    Table table = new Table(5);
+                    table.SetWidth(UnitValue.CreatePercentValue(100));
+                    table.AddHeaderCell("ID Producto");
+                    table.AddHeaderCell("Producto");
+                    table.AddHeaderCell("Precio Unitario");
+                    table.AddHeaderCell("Cantidad");
+                    table.AddHeaderCell("Imagen");
+                    foreach (ML.Producto producto in carrito.listaProductos)
+                    {
+                        table.AddCell(producto.IdProducto.ToString());
+                        table.AddCell(producto.Nombre);
+                        table.AddCell(producto.Precio.ToString());
+                        table.AddCell(producto.Cantidad.ToString());
+                        //byte[] imagebytes = Convert.ToBase64String(producto.Imagen);
+                        byte[] imagebytes = producto.Imagen;
+                        //string s = Convert.ToBase64String(imagebytes);
+                        //byte[] newImageBytes = Convert.FromBase64String(s);
+                        ImageData imageData = ImageDataFactory.Create(imagebytes);
+                        Image image = new Image(imageData);
+                        table.AddCell(image.SetWidth(50).SetHeight(50));
+                    }
+                    document.Add(table);
+                }
+            }
+            byte[] fileInBytes = System.IO.File.ReadAllBytes(rutaPdf);
+            System.IO.File.Delete(rutaPdf);
+            HttpContext.Session.Remove("Carrito");
+            return new FileStreamResult(new MemoryStream(fileInBytes), "application/pdf")
+            {
+                FileDownloadName = "ReporteCompra.pdf"
+            };
+        }
         private byte[] ConvertToBytes(IFormFile file)
         {
             byte[] data = null;
@@ -170,6 +224,5 @@ namespace PL.Controllers
             }
             return data;
         }
-
     }
 }

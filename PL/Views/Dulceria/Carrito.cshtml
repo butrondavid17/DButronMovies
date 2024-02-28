@@ -3,6 +3,7 @@
     ViewData["Title"] = "Carrito";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
 <h1>Carrito</h1>
 
@@ -21,12 +22,13 @@ else
                 <td class="text-center">Producto</td>
                 <td class="text-center">Cantidad</td>
                 <td class="text-center">Precio</td>
+                <td class="text-center">Total</td>
             </tr>
         </thead>
         <tbody>
             @foreach (ML.Producto producto in Model.listaProductos)
             {
-                <tr>
+                <tr id="rowProduct">
                     @if (producto.Imagen == null)
                     {
                         <td class="text-center">
@@ -42,9 +44,11 @@ else
                     <td class="text-center">@producto.Nombre</td>
                     <td class="text-center" id="txtCantidad">@producto.Cantidad</td>
                     <td class="text-center" id="txtPrecio">@producto.Precio</td>
+                    <td class="text-center" id="txtSubtotal">0</td>
                 </tr>
             }
             <tr>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td class="text-center">
@@ -56,16 +60,135 @@ else
             </tr>
         </tbody>
     </table>
-    <button class="btn btn-outline-success float-end">
+    <button class="btn btn-outline-success float-end" onclick="ShowModalForm()">
         <i class="bi bi-bag-fill"></i> Comprar
     </button>
 }
+<!-- Modal FORM -->
+<div class="modal fade" id="Form" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Formulario de envío</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("ModalForm", "Dulceria", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 mb-md-3">
+                            <h5>Ingrese su nombre</h5>
+                            @Html.TextBoxFor(model => model.InfoPdf.Name, new {@class="form-control", @type="text", @placeholder="Nombre Completo", @id="txtNombreCompleto"})
+                            @*<input id="txtNombreCompleto" type="text" placeholder="Nombre Completo" class="form-control" />*@
+                        </div>
+                        <div class="col-md-8 mb-md-3">
+                            <h5>Número de tarjeta</h5>
+                            @Html.TextBoxFor(model => model.InfoPdf.CardNumber, new {@id="txtTarjeta" , @type="number",  @placeholder="0000-0000-0000-0000", @class="form-control"})
+                            @*<input id="txtTarjeta" type="number" placeholder="0000-0000-0000-0000" class="form-control" />*@
+                        </div>
+                        <div class="col-md-8 mb-md3">
+                            <div class="row">
+                                <div class="col-md-6 mb-md-3">
+                                    <h5>Fecha Expiración</h5>
+                                    @Html.TextBoxFor(model => model.InfoPdf.DateExp, new {@id="txtFecha", @type="month", @placeholder="00/00", @class="form-control"})
+                                    @*<input id="txtFecha" type="month" placeholder="00/00" class="form-control" />*@
+                                </div>
+                                <div class="col-md-6 mb-md-3">
+                                    <h5>CVV</h5>
+                                    @Html.TextBoxFor(model => model.InfoPdf.CVV, new {@id="txtCVV", @type="number", @placeholder="000", @class="form-control"})
+                                    @*<input id="txtCVV" type="number" placeholder="000" class="form-control" />*@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8 mb-md-3">
+                            <h5>Dirección</h5>
+                            @Html.TextBoxFor(model => model.InfoPdf.Address, new {@readonly="readinly", @id="txtDireccion", @type="text", @placeholder="Calle, Ciudad, Colonia", @class="form-control"})
+                            @*<input readonly id="txtDireccion" type="text" placeholder="Calle, Ciudad, Colonia" class="form-control" />*@
+                        </div>
+                        <div id="map" style="width:100%;height:300px;" class="col-md-12 mb-md-3">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" onclick="ClearForm()">Cancelar</button>
+                        <button id="enviarBtn" type="submit" class="btn btn-outline-primary" onclick="ShowModalSuccess()">Enviar</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Success -->
+<div class="modal fade" id="Success" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Compra Exitosa</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <h5>La compra ha sido exitosa, puedes descargar el documento PDF con el resumen completo</h5>
+                    </div>
+                    <div class="col-md-8">
+                        <script src="https://unpkg.com/@@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+                        <dotlottie-player src="https://lottie.host/470bc1fc-c8e7-4c5b-8042-6195f6bc67fa/lxZ94WQ4YA.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="enviarBtn" href="@Url.Action("GenerarPDF", "Dulceria")" class="btn btn-outline-success rounded-pill">Descargar PDF</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/dataTables.material.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+<script src="~/js/carrito/FormularioModal.js"></script>
 <script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function (event) {
-        //código a ejecutar cuando existe la certeza de que el DOM está listo para recibir acciones
-        var cantidad = parseInt($('#txtCantidad').text())
-        var precio = parseInt($('#txtPrecio').text())
-        var totalProducto = cantidad * precio;
-        $('#txtTotal').text(totalProducto);
-    });
-    </script>
+    function initMap() {
+        var direccion;
+        myLatlng = { lat: 19.430874411066068, lng: -99.16137456893921 };
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 14,
+            center: myLatlng,
+        });
+        // Create the initial InfoWindow.
+        let infoWindow = new google.maps.InfoWindow({
+            content: "Presiona para obtener la ubicación",
+            position: myLatlng,
+        });
+        infoWindow.open(map);
+        // Configure the click listener.
+        google.maps.event.addListener(map, 'click', function (event) {
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+                'latLng': event.latLng
+            }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        // mi variable de direccion
+                        direccion = results[0].formatted_address;
+                        $("#txtDireccion").val(direccion);
+                    }
+                }
+            });
+        });
+        map.addListener("click", (mapsMouseEvent) => {
+            // Close the current InfoWindow.
+            infoWindow.close();
+            // Create a new InfoWindow.
+            infoWindow = new google.maps.InfoWindow({
+                position: mapsMouseEvent.latLng,
+                //content: direccion
+            });
+            infoWindow.setContent(direccion);
+            infoWindow.open(map);
+        });
+    }
+    window.initMap = initMap;
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSKBDdPPlfca_zTwyxKiicRQn1qfgRjLw&callback=initMap&v=weekly"></script>
